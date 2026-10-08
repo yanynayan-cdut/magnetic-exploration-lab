@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="description" content="完全离线的磁法勘探交互实验室：SVG 绘制、实时正演、旋转地球与二维等效层反演。">
+<title>磁场实验室 · Magnetic Exploration</title>
+<style>
+:root{color-scheme:dark;--bg:#0a1119;--panel:#101b27;--panel2:#13202e;--line:#273544;--text:#edf2f7;--muted:#94a5b7;--accent:#8be2c5;--red:#f48076;--blue:#72a9f1;--mono:Consolas,"SFMono-Regular",monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:"Segoe UI","Microsoft YaHei",sans-serif;font-size:13px}button,input,select{font:inherit}button,select,input{color:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:7px;background:#172332;min-height:35px;padding:7px 12px;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:background .16s,border-color .16s}button:hover{background:#233447;border-color:#526474}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}button:disabled{opacity:.32;cursor:default}button.active{color:var(--accent);border-color:#4e8f7d;background:#203c37}.primary{background:var(--accent);border-color:var(--accent);color:#0b2820;font-weight:650}.primary:hover{background:#b2f3dc;border-color:#b2f3dc}.quiet{border-color:transparent;background:transparent;color:var(--muted)}.quiet:hover{color:var(--text)}.icon{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}.symbols{position:absolute;width:0;height:0;overflow:hidden}.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}.eyebrow{font:10px var(--mono);letter-spacing:1.8px;color:var(--accent)}.muted{color:var(--muted)}
+.topbar{height:78px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 30px;background:#0c151f}.brand{display:flex;align-items:center;gap:13px}.brandmark{width:37px;height:37px;color:var(--accent)}.brand-name{font-size:18px;font-weight:650;letter-spacing:2px}.brand small{display:block;font:9px var(--mono);letter-spacing:2.4px;color:var(--muted);margin-top:5px}.head-actions{display:flex;align-items:center;gap:13px}.offline{display:flex;align-items:center;gap:7px;color:#a7c3b6;font-size:11px}.dot{width:6px;height:6px;background:var(--accent);border-radius:50%;display:inline-block}.intro{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:25px 30px 22px}.intro h1{font-size:25px;font-weight:550;letter-spacing:.4px;margin:7px 0 8px}.intro p{color:var(--muted);margin:0;font-size:12px}.workflow{display:flex;align-items:center;gap:13px;color:#a9b6c4;font-size:11px;white-space:nowrap}.workflow span{display:flex;align-items:center;gap:7px}.workflow b{font:10px var(--mono);color:var(--accent);border:1px solid #36544c;padding:4px 5px;border-radius:4px}.workflow .icon{width:14px;color:#607385}
+.workspace{display:grid;grid-template-columns:236px minmax(0,1fr) 300px;gap:18px;padding:0 30px 24px;max-width:1900px;margin:auto}.panel{background:var(--panel);border:1px solid var(--line);border-radius:11px;overflow:hidden}.controls{align-self:start}.control-head{padding:18px 18px 15px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;font-weight:600}.stepno{font:10px var(--mono);color:#657e91}.section{padding:18px;border-bottom:1px solid var(--line)}.section:last-child{border:0}.section-title{font-size:11px;color:var(--muted);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}.tools{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}.tools button{padding:9px 2px;min-height:53px;flex-direction:column;font-size:11px;gap:5px}.tools .icon{width:18px;height:18px}.field-label{display:flex;align-items:center;justify-content:space-between;margin:15px 0 8px;font-size:12px}.field-label:first-child{margin-top:0}.field-label output{color:var(--accent);font-family:var(--mono);font-size:11px}.amplitude{display:flex;gap:7px;align-items:center;margin:11px 0 2px}.amplitude input{width:100%;min-width:0;background:#0b151e;border:1px solid var(--line);border-radius:6px;padding:9px 10px;font:17px var(--mono);color:var(--red)}.unit{color:var(--muted);font:11px var(--mono)}input[type=range]{width:100%;height:16px;margin:3px 0 0;accent-color:var(--accent);cursor:pointer}input[type=checkbox]{accent-color:var(--accent);margin:0;width:13px;height:13px}.range-end{display:flex;justify-content:space-between;font:10px var(--mono);color:#8598aa;margin-top:5px}.sign-buttons{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}.sign-buttons button{font-size:11px;padding:7px 4px}.sign-buttons .positive{color:var(--red)}.sign-buttons .negative{color:var(--blue)}.mini-actions{display:flex;gap:5px;margin-top:14px}.mini-actions button{flex:1;padding:7px 3px;font-size:11px}.instruction{color:#98aabb;font-size:11px;line-height:1.8;margin:12px 0 0}.select{width:100%;padding:9px 8px;background:#0b151e;border:1px solid var(--line);border-radius:6px}.check{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;color:#b8c6d3}.controls .check{margin-top:16px}.param-note{font-size:10px;color:#8195a7;line-height:1.8;margin:11px 0 0}.center{min-width:0;display:flex;flex-direction:column;gap:18px}.map-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}.panel-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:17px 18px 5px}.panel-heading h2{font-size:13px;font-weight:550;margin:0}.heading-title{display:flex;gap:8px;align-items:center}.number{font:10px var(--mono);color:#7990a4}.badge{font:9px var(--mono);letter-spacing:.5px;color:var(--accent);border:1px solid #335749;border-radius:4px;padding:4px 6px;white-space:nowrap}.badge.neutral{color:#9db0c0;border-color:#374857}.subheading{margin:5px 18px 0;color:var(--muted);font-size:10px;line-height:1.7}.map-svg{display:block;width:100%;height:auto;margin-top:5px;user-select:none;touch-action:none}.map-svg.interactive{cursor:crosshair}.map-svg text,.chart-svg text,.depth-svg text,.globe-svg text{font-family:var(--mono);fill:#a9bacb;font-size:10px}.map-footer{display:flex;align-items:center;justify-content:space-between;padding:0 18px 13px;gap:8px;font-size:10px;color:var(--muted);min-height:29px}.readout{font:10px var(--mono);color:#b8c6d4}.color-key{padding:0 18px 17px}.color-bar{width:100%;height:6px;display:block}.color-ticks{display:flex;justify-content:space-between;margin-top:6px;font:9px var(--mono);color:#96a9bb}.map-options{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 18px 13px}.map-options .check{font-size:10px}.inversion-heading{padding:17px 18px 12px;border-bottom:1px solid var(--line)}.inversion-heading .panel-heading{padding:0}.inverse-layout{display:grid;grid-template-columns:40% 60%;padding:10px 0}.inverse-map-wrap{border-right:1px solid var(--line);min-width:0}.inverse-map-wrap .map-svg{margin:0}.small-title{font-size:11px;color:#c7d3dd;padding:5px 18px 0}.fit-wrap{padding:8px 18px 6px;min-width:0}.fit-title{display:flex;align-items:center;justify-content:space-between;gap:7px;margin:0 0 6px;font-size:11px}.legend-inline{display:flex;gap:12px;font-size:9px;color:var(--muted);flex-wrap:wrap}.legend-inline span{display:flex;align-items:center;gap:5px}.line-key{height:0;width:16px;border-top:2px solid var(--accent)}.line-key.observed{border-color:#f1b29a}.line-key.dashed{border-top-style:dashed}.chart-svg{width:100%;display:block;overflow:visible}.fit-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;border-top:1px solid var(--line);padding-top:12px;margin-top:6px}.fit-stats span{display:block;font-size:10px;color:var(--muted)}.fit-stats b{display:block;margin-top:5px;font:20px var(--mono);font-weight:400}.fit-stats b small{font-size:10px;color:var(--muted)}.inverse-controls{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:13px 18px 17px;border-top:1px solid var(--line)}.inverse-controls .field-label{margin-top:0;font-size:10px}.inverse-note{padding:0 18px 14px;font-size:10px;color:#91a4b5;line-height:1.7}.right{display:flex;flex-direction:column;gap:18px;min-width:0}.globe-panel .panel-heading{padding-bottom:6px}.globe-svg{width:100%;height:auto;display:block;touch-action:none;cursor:grab}.globe-svg:active{cursor:grabbing}.globe-controls{display:flex;align-items:center;justify-content:space-between;padding:0 18px 13px;gap:8px}.globe-controls button{font-size:10px;min-height:30px;padding:5px 8px}.globe-coord{font:10px var(--mono);color:var(--muted)}.global-legend{display:flex;justify-content:center;gap:16px;font-size:10px;color:#b9c8d6;margin:0 10px 15px}.global-legend span{display:flex;align-items:center;gap:6px}.global-legend i{width:22px;border-top:2px dashed var(--red)}.global-legend .neg i{border-color:var(--blue)}.globe-bottom{border-top:1px solid var(--line);padding:14px 18px}.globe-bottom p{font-size:10px;color:var(--muted);line-height:1.7;margin:10px 0 0}.metrics{padding:17px 18px}.metrics h2{font-size:12px;margin:0 0 17px;font-weight:550}.metric-main{font:34px var(--mono);color:var(--accent);margin:5px 0}.metric-main small{font-size:11px;color:var(--muted);margin-left:3px}.metric-label{font-size:10px;color:var(--muted)}.metric-pair{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:20px;padding-top:15px;border-top:1px solid var(--line)}.metric-pair b{font:15px var(--mono);display:block;margin-top:7px}.positive-text{color:var(--red)}.negative-text{color:var(--blue)}.depth-panel{padding:17px 18px 13px}.depth-panel h2{font-size:12px;font-weight:550;margin:0 0 8px}.depth-svg{width:100%;display:block}.depth-panel p{font-size:10px;line-height:1.8;color:var(--muted);margin:8px 0 0}.footer{margin:0 30px;padding:13px 0 20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;font-size:10px;color:#7f94a6}.status-text{display:flex;align-items:center;gap:7px}.toast{position:fixed;bottom:25px;left:50%;transform:translate(-50%,20px);background:#203a34;color:#d7f5e9;border:1px solid #568f7e;box-shadow:0 10px 30px #0005;padding:12px 18px;border-radius:8px;font-size:12px;opacity:0;pointer-events:none;transition:.2s;z-index:100}.toast.show{opacity:1;transform:translate(-50%,0)}
+dialog{max-width:660px;width:calc(100% - 36px);border:1px solid #405366;border-radius:13px;background:#13202e;color:var(--text);padding:25px;box-shadow:0 30px 100px #0009}dialog::backdrop{background:#02070bc9}.dialog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.dialog-head h2{font-size:18px;margin:0;font-weight:550}dialog p{font-size:12px;color:#b7c5d3;line-height:1.9}dialog strong{color:var(--accent);font-weight:550}dialog .formula{background:#0b151f;border:1px solid var(--line);padding:13px;border-radius:6px;font:12px var(--mono);line-height:2;color:#c4e7dc;overflow-wrap:anywhere}dialog ol{padding-left:20px;color:#b7c5d3;font-size:12px;line-height:2.1}.dialog-note{border-top:1px solid var(--line);padding-top:12px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+@media(min-width:1680px){.workspace{grid-template-columns:252px minmax(0,1fr) 350px}.topbar,.intro{padding-left:40px;padding-right:40px}.workspace{padding-left:40px;padding-right:40px}.intro h1{font-size:28px}}
+@media(max-width:1240px){.workspace{grid-template-columns:214px minmax(0,1fr);gap:15px;padding-left:20px;padding-right:20px}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:start}.globe-svg{max-width:300px;margin:auto}.right .panel{height:100%}.intro,.topbar{padding-left:20px;padding-right:20px}.workflow{display:none}.map-row{gap:15px}.panel-heading{padding-left:13px;padding-right:13px}.badge{font-size:8px}}
+@media(max-width:760px){.topbar{height:69px;padding:0 15px}.brand-name{font-size:16px}.brandmark{width:30px}.offline{display:none}.head-actions{gap:3px}.head-actions button{padding:7px;font-size:11px}.intro{padding:21px 15px}.intro h1{font-size:22px}.intro p{line-height:1.8}.workspace{padding:0 15px 20px;display:flex;flex-direction:column;gap:15px}.controls{width:100%}.control-head{padding:12px 16px}.control-body{display:grid;grid-template-columns:1fr 1fr}.section{padding:14px;border-bottom:1px solid var(--line)}.section:first-child{grid-column:1/-1}.section:last-child{border-bottom:1px solid var(--line)}.tools{display:flex}.tools button{flex:1;flex-direction:row;min-height:35px}.instruction{margin-top:9px}.amplitude{margin-top:8px}.field-label{margin-top:11px}.mini-actions{margin-top:9px}.sign-buttons{margin-top:8px}.center{gap:15px}.right{display:grid;grid-template-columns:1fr 1fr;gap:15px}.globe-panel{grid-column:1/-1}.right .panel{height:auto}.globe-svg{max-width:355px}.inverse-layout{grid-template-columns:42% 58%}.fit-wrap{padding-left:12px;padding-right:12px}.fit-title{display:block}.fit-title .legend-inline{margin-top:8px}.fit-stats b{font-size:16px}.footer{margin:0 15px;flex-direction:column;line-height:1.7}.panel-heading{flex-wrap:wrap;row-gap:5px}.map-footer{padding-left:12px;padding-right:12px}.map-options{padding-left:12px;padding-right:12px}.subheading{margin-left:13px;margin-right:13px}.inverse-controls{gap:12px}.inverse-heading-actions{flex-wrap:wrap}.map-footer .map-resolution{display:none}.color-ticks{font-size:8px}}
+@media(max-width:440px){.map-row{grid-template-columns:1fr;gap:15px}.inverse-layout{grid-template-columns:1fr}.inverse-map-wrap{border-right:0}.inverse-map-wrap .map-svg{max-width:310px;margin:auto}.fit-wrap{padding:12px 16px}.right{grid-template-columns:1fr}.control-body{grid-template-columns:1fr 1fr}.brand small{font-size:8px;letter-spacing:1.5px}.head-actions button span{display:none}.intro h1{font-size:21px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<svg class="symbols" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 6.5c4 2 10 2 14 0M5 17.5c4-2 10-2 14 0"/></symbol>
+<symbol id="i-brush" viewBox="0 0 24 24"><path d="m9 15 9-11 3 3-11 9M9 15c-4-2-3 6-7 5 6 3 10-2 7-5Z"/></symbol>
+<symbol id="i-area" viewBox="0 0 24 24"><path d="M7 4c-7 2-5 13 3 15 9 3 15-8 9-13-3-3-7-4-12-2Z" stroke-dasharray="3 3"/><path d="m16 17 4 4m0-4-4 4"/></symbol>
+<symbol id="i-erase" viewBox="0 0 24 24"><path d="m14 3 7 7-11 11H5l-4-4L14 3ZM7 11l7 7M10 21h12"/></symbol>
+<symbol id="i-undo" viewBox="0 0 24 24"><path d="m8 4-5 5 5 5M3 9h11a6 6 0 0 1 0 12"/></symbol>
+<symbol id="i-redo" viewBox="0 0 24 24"><path d="m16 4 5 5-5 5M21 9H10a6 6 0 0 0 0 12"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V3h8v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol>
+<symbol id="i-save" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.1"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8Z"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 4v16M16 4v16"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 1v6m0 10v6M1 12h6m10 0h6"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+<symbol id="i-spark" viewBox="0 0 24 24"><path d="m13 2-9 12h7l-1 8 10-13h-7Z"/></symbol>
+</defs></svg>
+<header class="topbar">
+ <div class="brand"><svg class="brandmark icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-globe"/></svg><div><div class="brand-name">磁场实验室</div><small>MAGNETIC EXPLORATION LAB</small></div></div>
+ <div class="head-actions"><span class="offline"><i class="dot"></i>离线运行 · 全 SVG</span><button id="help-button" class="quiet"><svg class="icon"><use href="#i-info"/></svg><span>使用说明</span></button><button id="save-button"><svg class="icon"><use href="#i-save"/></svg><span>保存实验</span></button></div>
+</header>
+<div class="intro"><div><div class="eyebrow">INTERACTIVE GEOPHYSICS / 交互式地球物理</div><h1>从一笔异常，探索地下磁场。</h1><p>绘制你想象中的磁异常区域，观察磁场响应与二维等效层反演。</p></div><div class="workflow"><span><b>01</b>构建模型</span><svg class="icon"><use href="#i-arrow"/></svg><span><b>02</b>计算磁场</span><svg class="icon"><use href="#i-arrow"/></svg><span><b>03</b>反演与探索</span></div></div>
+<main class="workspace">
+ <aside class="panel controls" aria-label="模型绘制和正演参数">
+  <div class="control-head"><span>绘制与参数</span><span class="stepno">MODEL SETUP</span></div>
+  <div class="control-body">
+   <section class="section"><div class="section-title">绘制工具 <span class="mono">B / L / E</span></div><div class="tools" role="group" aria-label="绘制工具"><button id="tool-brush" class="active" aria-pressed="true" data-tool="brush"><svg class="icon"><use href="#i-brush"/></svg>画笔</button><button id="tool-lasso" aria-pressed="false" data-tool="lasso"><svg class="icon"><use href="#i-area"/></svg>圈选</button><button id="tool-erase" aria-pressed="false" data-tool="erase"><svg class="icon"><use href="#i-erase"/></svg>擦除</button></div><p class="instruction" id="tool-hint">在模型图上按住并拖动，绘制连续异常区域。画笔覆盖已有幅值。</p><div class="mini-actions"><button id="undo" disabled title="撤销 Ctrl+Z" aria-label="撤销"><svg class="icon"><use href="#i-undo"/></svg></button><button id="redo" disabled title="重做 Ctrl+Shift+Z" aria-label="重做"><svg class="icon"><use href="#i-redo"/></svg></button><button id="clear"><svg class="icon"><use href="#i-trash"/></svg>清空</button></div></section>
+   <section class="section"><label for="amplitude" class="field-label">异常幅值 <span class="unit">源层等效值</span></label><div class="amplitude"><input id="amplitude" type="number" min="-1000" max="1000" step="10" value="600" aria-label="绘制幅值 nT"><span class="unit">nT</span></div><input id="amplitude-range" type="range" min="-1000" max="1000" step="10" value="600" aria-label="异常幅值滑块"><div class="range-end"><span>−1000</span><span>0</span><span>+1000</span></div><div class="sign-buttons"><button id="sign-pos" class="positive">＋ 正异常</button><button id="sign-neg" class="negative">− 负异常</button></div><label class="field-label" for="radius">画笔半径 <output id="radius-value">1.50 km</output></label><input id="radius" type="range" min="0.3" max="4" step="0.1" value="1.5"></section>
+   <section class="section"><label class="field-label" for="depth">正演源层深度 <output id="depth-value">1.20 km</output></label><input id="depth" type="range" min="0.2" max="4" step="0.1" value="1.2"><label class="field-label" for="height">观测高度 <output id="height-value">0.30 km</output></label><input id="height" type="range" min="0" max="2" step="0.1" value="0.3"><label class="field-label" for="noise">观测噪声 σ <output id="noise-value">0 nT</output></label><input id="noise" type="range" min="0" max="20" step="1" value="0"><p class="param-note">深度或观测高度增加，磁异常响应将更平缓。测区 24 × 24 km。</p></section>
+   <section class="section"><label class="field-label" for="preset">试试一个模型</label><select id="preset" class="select"><option value="dipole">双极异常</option><option value="ring">环形异常体</option><option value="fault">斜向断裂带</option><option value="empty">空白模型</option></select><button id="load-preset" style="width:100%;margin-top:9px">载入示例</button><label class="check"><input type="checkbox" id="contours" checked>显示等值线</label><label class="check"><input type="checkbox" id="grid" checked>显示测区网格</label></section>
+  </div>
+ </aside>
+ <div class="center">
+  <div class="map-row">
+   <section class="panel"><div class="panel-heading"><div class="heading-title"><span class="number">01</span><h2>二维异常模型</h2></div><span class="badge neutral">DRAW HERE</span></div><p class="subheading">源层平面 · 红色为正，蓝色为负</p><svg id="model-map" class="map-svg interactive" viewBox="0 0 448 440" role="img" aria-label="可绘制的二维磁异常源层模型，坐标单位千米"></svg><div class="map-footer"><span id="model-readout" class="readout">X 12.00 · Y 12.00 km</span><span class="map-resolution mono">64 × 64</span></div><div class="color-key" data-color-key></div></section>
+   <section class="panel"><div class="panel-heading"><div class="heading-title"><span class="number">02</span><h2>观测磁异常场</h2></div><span class="badge" id="live-status">LIVE</span></div><p class="subheading">向上延拓响应 ΔT · 随模型实时更新</p><svg id="field-map" class="map-svg" viewBox="0 0 448 440" role="img" aria-label="实时观测磁异常场及剖面线"></svg><div class="map-footer"><span id="field-readout" class="readout">ΔT — nT</span><span class="mono map-resolution">nT</span></div><div class="color-key" data-color-key></div></section>
+  </div>
+  <section class="panel" aria-label="二维等效层反演结果">
+   <div class="inversion-heading"><div class="panel-heading"><div class="heading-title"><span class="number">03</span><h2>二维等效层反演</h2></div><div class="inverse-heading-actions" style="display:flex;align-items:center;gap:10px"><label class="check"><input type="checkbox" id="auto-inverse" checked>自动反演</label><button id="invert-button" class="primary" style="min-height:30px;font-size:11px;padding:5px 10px"><svg class="icon"><use href="#i-spark"/></svg>重新反演</button></div></div><p class="subheading" style="margin:7px 0 0">由观测场恢复等效异常分布 <span id="inverse-status" style="color:var(--accent);float:right">已更新</span></p></div>
+   <div class="inverse-layout"><div class="inverse-map-wrap"><div class="small-title">恢复的源层等效幅值</div><svg id="inverse-map" class="map-svg" viewBox="0 0 448 440" role="img" aria-label="反演恢复的二维等效异常模型"></svg><div class="map-footer"><span id="inverse-readout" class="readout">ΔT — nT</span></div></div><div class="fit-wrap"><div class="fit-title"><span>观测与反演预测剖面</span><div class="legend-inline"><span><i class="line-key observed"></i>观测</span><span><i class="line-key dashed"></i>预测</span></div></div><svg id="profile" class="chart-svg" viewBox="0 0 430 202" role="img" aria-label="沿测线的观测磁异常与反演预测曲线，单位 nT"></svg><label class="field-label" for="profile-y" style="font-size:10px;margin:7px 0 3px">测线 Y <output id="profile-y-value">12.00 km</output></label><input type="range" id="profile-y" min="0" max="24" step="0.1" value="12"><div class="fit-stats"><div><span>全测区拟合 RMSE</span><b id="rmse">— <small>nT</small></b></div><div><span>全测区相对误差</span><b id="relative-error">— <small>%</small></b></div></div></div></div>
+   <div class="inverse-controls"><div><label class="field-label" for="regularization">正则化 λ <output id="regularization-value">0.0010</output></label><input type="range" id="regularization" min="-5" max="-1" step="0.1" value="-3"><div class="range-end"><span>更多细节</span><span>更平滑</span></div></div><div><label class="field-label" for="inverse-depth">反演假定深度 <output id="inverse-depth-value">1.20 km</output></label><input type="range" id="inverse-depth" min="0.2" max="4" step="0.1" value="1.2"><div class="range-end"><span>0.2 km</span><span>4.0 km</span></div></div></div><div class="inverse-note">单层、周期边界、深度给定的正则化反演。恢复的是等效异常幅值，不能唯一确定真实矿体或磁化率。</div>
+  </section>
+ </div>
+ <aside class="right">
+  <section class="panel globe-panel"><div class="panel-heading"><div class="heading-title"><svg class="icon" style="color:var(--accent)"><use href="#i-globe"/></svg><h2>全球磁异常视图</h2></div><span class="badge neutral">SYNTHETIC</span></div><p class="subheading">合成参考场 · 拖动地球改变观察方向</p><svg id="globe" class="globe-svg" viewBox="0 0 360 340" role="img" aria-label="可旋转的地球，红蓝虚线分别表示正负合成磁异常等值线">
+   <defs><radialGradient id="earth-fill" cx="32%" cy="28%" r="80%"><stop offset="0" stop-color="#21374a"/><stop offset=".68" stop-color="#132639"/><stop offset="1" stop-color="#0a1520"/></radialGradient><radialGradient id="earth-shade" cx="25%" cy="30%" r="80%"><stop offset=".45" stop-color="#050b13" stop-opacity="0"/><stop offset="1" stop-color="#050b13" stop-opacity=".66"/></radialGradient><clipPath id="earth-clip"><circle cx="180" cy="167" r="133"/></clipPath></defs>
+   <circle cx="180" cy="167" r="145" fill="none" stroke="#293e51" stroke-dasharray="2 7"/><path d="M15 167h330M180 12v310" stroke="#263b4e" stroke-width=".6"/><circle cx="180" cy="167" r="133" fill="url(#earth-fill)" stroke="#526b7d" stroke-width="1"/><g clip-path="url(#earth-clip)"><g id="earth-land" fill="#274051" stroke="#506476" stroke-width=".65"></g><path id="earth-grid" fill="none" stroke="#6a8599" stroke-width=".55" opacity=".36"/><path id="earth-positive" fill="none" stroke="#f3877c" stroke-width="1.3" stroke-dasharray="4 4" stroke-linecap="round" opacity=".92"/><path id="earth-negative" fill="none" stroke="#77aff2" stroke-width="1.3" stroke-dasharray="4 4" stroke-linecap="round" opacity=".92"/><circle cx="180" cy="167" r="133" fill="url(#earth-shade)" pointer-events="none"/><g id="earth-site"></g></g><text x="181" y="20" text-anchor="middle" style="font-size:9px">N</text><text x="181" y="325" text-anchor="middle" style="font-size:9px">S</text>
+  </svg><div class="globe-controls"><button id="rotation-button"><svg class="icon" id="rotation-icon"><use href="#i-pause"/></svg><span id="rotation-label">暂停旋转</span></button><button id="globe-reset" aria-label="重置地球视角"><svg class="icon"><use href="#i-home"/></svg></button><span id="globe-coordinate" class="globe-coord">105°E / 20°N</span></div><div class="global-legend"><span><i></i>正异常等值线</span><span class="neg"><i></i>负异常等值线</span></div><div class="globe-bottom"><label class="check"><input type="checkbox" id="globe-link" checked>叠加当前局部磁场</label><p>全球背景为合成数据，非实测全球磁异常图。局部模型以 105°E / 30°N 为中心放大 160 倍映射，仅用于展示。</p></div></section>
+  <section class="panel metrics"><h2>测区场值概览</h2><div class="metric-label">观测场峰峰值</div><div class="metric-main"><span id="peak-to-peak">—</span><small>nT</small></div><div class="metric-pair"><div><span class="metric-label">观测场最大值</span><b class="positive-text" id="field-max">— nT</b></div><div><span class="metric-label">观测场最小值</span><b class="negative-text" id="field-min">— nT</b></div></div><div class="metric-pair"><div><span class="metric-label">有效源层面积¹</span><b id="model-area">— km²</b></div><div><span class="metric-label">本次计算</span><b id="compute-time">— ms</b></div></div><p class="param-note">¹ 等效幅值 |A| ≥ 10 nT 的网格面积。</p></section>
+  <section class="panel depth-panel"><h2>观测几何</h2><svg id="depth-view" class="depth-svg" viewBox="0 0 270 150" role="img" aria-label="源层深度、地表和观测高度的示意剖面"></svg><p>平面源层的磁场随高度向上延拓。图中的地下层位置为已设定的深度。</p></section>
+ </aside>
+</main>
+<footer class="footer"><span class="status-text"><i class="dot"></i><span id="footer-status">模型就绪 · 实时正演 / 正则化反演</span></span><span>64 × 64 网格 · nT / km · 单文件离线实验工具</span></footer>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<dialog id="help-dialog" aria-labelledby="help-title"><div class="dialog-head"><h2 id="help-title">从绘制到反演</h2><button id="close-help" class="quiet" aria-label="关闭说明">关闭</button></div><ol><li>选择<strong>画笔</strong>，设置正或负幅值后在二维模型图上拖动。画笔将区域幅值覆盖为设定值，边缘轻微过渡。</li><li>选择<strong>圈选</strong>，按住鼠标画一个闭合区域，松开后自动闭合并填入当前幅值。擦除工具将幅值清零。</li><li>观测场随每一笔更新。调整源层深度、观测高度或噪声，查看变化；移动测线 Y 可比较剖面。</li><li>反演只使用观测场与反演假定深度。调整正则化：小 λ 保留细节，大 λ 抑制不稳定高频。</li><li>拖动地球旋转，或用暂停按钮控制动画。保存实验会下载包含当前模型和参数的独立 HTML，仍可离线打开。</li></ol><p>快捷键：B 画笔、L 圈选、E 擦除；Ctrl / ⌘ + Z 撤销，Ctrl / ⌘ + Shift + Z 重做。移动设备也可用手指绘制。</p><div class="formula">正演：B̂(k) = exp(−|k|(d + h)) Â(k) + ε̂(k)<br>反演：Âᵣ(k) = H(k) B̂(k) / [H(k)² + λ(1 + (|k| Δx)²)]<br>H(k) = exp(−|k|(dᵢ + h))</div><p>二维 FFT 网格为 64 × 64，测区 24 × 24 km，Δx = 0.375 km；FFT 假定周期边界，边缘异常会与另一侧相互影响。噪声为固定随机种子的高斯白噪声，σ 单位为 nT。RMSE 为全网格残差的均方根；相对误差为 ||预测 − 观测||₂ / ||观测||₂。</p><p class="dialog-note"><strong>模型含义：</strong>A 是源层的等效磁异常幅值（nT），B 是观测平面的标量磁异常。此工具演示谐波向上延拓与等效层反演，不包含地磁倾角、矢量磁化、退磁或真实矿体几何。反演深度是输入假设，无法由单个平面观测唯一恢复；结果不等同于磁化率或真实地质构造。全球背景和大陆轮廓均为内嵌的简化示意。</p></dialog>
+<script id="session-data" type="application/json">null</script>
+<script>
+/* All graphics, numerical routines and data are embedded. No network requests. */
+'use strict';
+(() => {
+const $ = id => document.getElementById(id);
+const N=64, SIZE=N*N, DOMAIN=24, DX=DOMAIN/N, OX=44, OY=16, MAP=384;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const state={model:new Float64Array(SIZE), field:new Float64Array(SIZE), inverse:new Float64Array(SIZE), fitted:new Float64Array(SIZE), amplitude:600,radius:1.5,depth:1.2,height:.3,noise:0,lambda:.001,inverseDepth:1.2,profileY:12,tool:'brush',auto:true,contours:true,grid:true,globeLink:true,rotating:!matchMedia('(prefers-reduced-motion: reduce)').matches,lon:105,lat:20,inverseCurrent:true,scale:600};
+const history=[], future=[];let activeStroke=null, scheduled=false, toastTimer, globeDirty=true, contourSegments=[], revision=0;
+const freq=new Float64Array(SIZE);
+for(let y=0;y<N;y++)for(let x=0;x<N;x++) freq[y*N+x]=2*Math.PI/DOMAIN*Math.hypot(x<=N/2?x:x-N,y<=N/2?y:y-N);
+// Radix-2 complex FFT. Forward is unnormalised; inverse divides by N on each axis.
+function fft1(re,im,inverse){
+ for(let i=1,j=0;i<N;i++){let bit=N>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;if(i<j){[re[i],re[j]]=[re[j],re[i]];[im[i],im[j]]=[im[j],im[i]];}}
+ for(let length=2;length<=N;length<<=1){const a=(inverse?2:-2)*Math.PI/length,wr0=Math.cos(a),wi0=Math.sin(a);
+  for(let start=0;start<N;start+=length){let wr=1,wi=0;for(let j=0;j<length/2;j++){const p=start+j,q=p+length/2,tr=wr*re[q]-wi*im[q],ti=wr*im[q]+wi*re[q];re[q]=re[p]-tr;im[q]=im[p]-ti;re[p]+=tr;im[p]+=ti;const t=wr*wr0-wi*wi0;wi=wr*wi0+wi*wr0;wr=t;}}
+ }if(inverse)for(let i=0;i<N;i++){re[i]/=N;im[i]/=N;}
+}
+function fft2(real,imag=new Float64Array(SIZE),inverse=false){
+ const re=Float64Array.from(real),im=Float64Array.from(imag),r=new Float64Array(N),a=new Float64Array(N);
+ for(let y=0;y<N;y++){for(let x=0;x<N;x++){r[x]=re[y*N+x];a[x]=im[y*N+x];}fft1(r,a,inverse);for(let x=0;x<N;x++){re[y*N+x]=r[x];im[y*N+x]=a[x];}}
+ for(let x=0;x<N;x++){for(let y=0;y<N;y++){r[y]=re[y*N+x];a[y]=im[y*N+x];}fft1(r,a,inverse);for(let y=0;y<N;y++){re[y*N+x]=r[y];im[y*N+x]=a[y];}}
+ return {re,im};
+}
+function propagate(values,distance){const f=fft2(values);for(let i=0;i<SIZE;i++){const h=Math.exp(-freq[i]*distance);f.re[i]*=h;f.im[i]*=h;}return fft2(f.re,f.im,true).re;}
+let seed=92713;const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return (seed+.5)/4294967296;};
+const noisePattern=Float64Array.from({length:SIZE},()=>Math.sqrt(-2*Math.log(random()))*Math.cos(2*Math.PI*random()));
+function solveInverse(){
+ const f=fft2(state.field),predictionRe=new Float64Array(SIZE),predictionIm=new Float64Array(SIZE);
+ for(let i=0;i<SIZE;i++){const h=Math.exp(-freq[i]*(state.inverseDepth+state.height)),factor=h/(h*h+state.lambda*(1+(freq[i]*DX)**2));f.re[i]*=factor;f.im[i]*=factor;predictionRe[i]=f.re[i]*h;predictionIm[i]=f.im[i]*h;}
+ state.inverse=fft2(f.re,f.im,true).re;state.fitted=fft2(predictionRe,predictionIm,true).re;state.inverseCurrent=true;
+}
+function compute(force=false){
+ const start=performance.now();state.field=propagate(state.model,state.depth+state.height);
+ for(let i=0;i<SIZE;i++)state.field[i]+=noisePattern[i]*state.noise;
+ if(state.auto||force)solveInverse();else state.inverseCurrent=false;
+ let max=0;for(let i=0;i<SIZE;i++)max=Math.max(max,Math.abs(state.model[i]),Math.abs(state.field[i]),Math.abs(state.inverse[i]));state.scale=Math.max(10,Math.ceil(max/50)*50);
+ renderMaps();renderProfile();renderStats();renderDepth();
+ $('compute-time').textContent=(performance.now()-start).toFixed(1)+' ms';
+ $('inverse-status').textContent=state.inverseCurrent?'已更新':'待重新反演';$('inverse-status').style.color=state.inverseCurrent?'var(--accent)':'#efbc7a';
+ $('footer-status').textContent='模型就绪 · '+(state.auto?'实时正演 / 自动反演':'实时正演 / 手动反演');
+ revision++;globeDirty=true;scheduled=false;
+}
+function queueCompute(){if(!scheduled){scheduled=true;requestAnimationFrame(()=>compute());}}
+function toast(message){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2400);}
+function saveHistory(){history.push(Float64Array.from(state.model));if(history.length>30)history.shift();future.length=0;updateHistory();}
+function updateHistory(){$('undo').disabled=!history.length;$('redo').disabled=!future.length;}
+function undo(){if(activeStroke||!history.length)return;future.push(Float64Array.from(state.model));state.model=history.pop();updateHistory();compute();}
+function redo(){if(activeStroke||!future.length)return;history.push(Float64Array.from(state.model));state.model=future.pop();updateHistory();compute();}
+function setTool(tool){state.tool=tool;document.querySelectorAll('[data-tool]').forEach(b=>{const on=b.dataset.tool===tool;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});$('tool-hint').textContent=tool==='lasso'?'按住并圈出区域，松开自动闭合；区域内填入当前设定幅值。':tool==='erase'?'按住并拖动，将经过的异常幅值擦除为零。':'在模型图上按住并拖动，绘制连续异常区域。画笔覆盖已有幅值。';$('radius').disabled=tool==='lasso';$('model-cursor').setAttribute('visibility','hidden');}
+function setAmplitude(value){state.amplitude=clamp(Number(value)||0,-1000,1000);$('amplitude').value=state.amplitude;$('amplitude-range').value=state.amplitude;$('amplitude').style.color=state.amplitude<0?'var(--blue)':state.amplitude>0?'var(--red)':'var(--text)';}
+const palette=Array.from({length:65},(_,i)=>{const t=(i-32)/32,base=[18,34,49],target=t<0?[90,161,237]:[242,122,108],a=Math.abs(t)**.72;return 'rgb('+base.map((v,k)=>Math.round(v+(target[k]-v)*a)).join(',')+')';});
+function initMap(id,prefix){
+ const grid=Array.from({length:9},(_,i)=>{const s=i*MAP/8;return `M${OX+s},${OY}V${OY+MAP}M${OX},${OY+s}H${OX+MAP}`;}).join('');
+ let axes='';for(let i=0;i<=4;i++){const v=i*6,p=OX+i*MAP/4,q=OY+MAP-i*MAP/4;axes+=`<text x="${p}" y="${OY+MAP+18}" text-anchor="middle">${v}</text><text x="${OX-10}" y="${q+3}" text-anchor="end">${v}</text>`;}
+ $(id).innerHTML=`<defs><clipPath id="${prefix}-clip"><rect x="${OX}" y="${OY}" width="${MAP}" height="${MAP}" rx="3"/></clipPath></defs><rect x="${OX}" y="${OY}" width="${MAP}" height="${MAP}" rx="3" fill="#122231"/><g clip-path="url(#${prefix}-clip)"><g id="${prefix}-heat"></g><path id="${prefix}-grid" d="${grid}" fill="none" stroke="#b4ccdf" stroke-opacity=".105" stroke-width=".8"/><path id="${prefix}-positive" fill="none" stroke="#ffc1b7" stroke-opacity=".64" stroke-width="1"/><path id="${prefix}-negative" fill="none" stroke="#b2d8ff" stroke-opacity=".64" stroke-width="1"/><path id="${prefix}-zero" fill="none" stroke="#a9b8c8" stroke-opacity=".2" stroke-width=".6"/><path id="${prefix}-section" fill="none" stroke="#cce9dd" stroke-width="1" stroke-dasharray="5 5"/><path id="${prefix}-lasso" fill="#8be2c51b" stroke="#baf5df" stroke-width="1.5" stroke-dasharray="5 4"/><circle id="${prefix}-cursor" fill="#ffffff0c" stroke="#e5f7f1" stroke-width="1" visibility="hidden" pointer-events="none"/></g><rect x="${OX}" y="${OY}" width="${MAP}" height="${MAP}" rx="3" fill="none" stroke="#41586d" stroke-opacity=".45"/>${axes}<text x="${OX+MAP}" y="437" text-anchor="end">X / km</text><text x="14" y="${OY}" text-anchor="middle" style="font-size:9px">Y/km</text>`;
+ $(prefix+'-heat').innerHTML=palette.map((fill,i)=>`<path id="${prefix}-bin-${i}" fill="${fill}"/>`).join('');
+}
+initMap('model-map','model');initMap('field-map','field');initMap('inverse-map','inverse');
+function renderHeat(values,prefix){
+ const paths=Array(65).fill('');for(let row=0;row<N;row++){let begin=0,current=-1;for(let x=0;x<=N;x++){const bin=x<N?clamp(Math.round(32+32*values[row*N+x]/state.scale),0,64):-1;if(bin!==current){if(current>=0){const px=OX+begin*6,py=OY+(N-1-row)*6;paths[current]+=`M${px},${py}h${(x-begin)*6}v6h-${(x-begin)*6}Z`;}begin=x;current=bin;}}}
+ for(let i=0;i<65;i++)$(prefix+'-bin-'+i).setAttribute('d',paths[i]);
+}
+// Marching squares with an asymptotic-style centre decision for saddle cells.
+function contours(values,nx,ny,levels,callback){
+ for(const level of levels)for(let y=0;y<ny-1;y++)for(let x=0;x<nx-1;x++){
+  const a=[values[y*nx+x],values[y*nx+x+1],values[(y+1)*nx+x+1],values[(y+1)*nx+x]],points=[[x,y],[x+1,y],[x+1,y+1],[x,y+1]],edges=[];
+  for(let i=0;i<4;i++){const j=(i+1)%4;if((a[i]>=level)!==(a[j]>=level)){const t=(level-a[i])/(a[j]-a[i]);edges.push({edge:i,p:[points[i][0]+t*(points[j][0]-points[i][0]),points[i][1]+t*(points[j][1]-points[i][1])]});}}
+  if(edges.length===2)callback(edges[0].p,edges[1].p,level);
+  else if(edges.length===4){const c=(a[0]+a[1]+a[2]+a[3])/4,join=(c>=level)===(a[0]>=level);if(join){callback(edges[0].p,edges[1].p,level);callback(edges[2].p,edges[3].p,level);}else{callback(edges[0].p,edges[3].p,level);callback(edges[1].p,edges[2].p,level);}}
+ }
+}
+function renderContour(values,prefix){
+ let positive='',negative='',zero='';if(state.contours){const s=state.scale,levels=[-s*.75,-s*.5,-s*.3,-s*.15,-s*.06,s*.06,s*.15,s*.3,s*.5,s*.75];
+  contours(values,N,N,levels,(a,b,l)=>{const path=`M${(OX+(a[0]+.5)*6).toFixed(1)},${(OY+MAP-(a[1]+.5)*6).toFixed(1)}L${(OX+(b[0]+.5)*6).toFixed(1)},${(OY+MAP-(b[1]+.5)*6).toFixed(1)}`;if(l>0)positive+=path;else negative+=path;});
+ }$(prefix+'-positive').setAttribute('d',positive);$(prefix+'-negative').setAttribute('d',negative);$(prefix+'-zero').setAttribute('d',zero);
+ $(prefix+'-grid').style.display=state.grid?'':'none';
+}
+function renderMaps(){
+ for(const [p,v] of [['model',state.model],['field',state.field],['inverse',state.inverse]]){renderHeat(v,p);renderContour(v,p);}
+ const y=OY+MAP-state.profileY/DOMAIN*MAP;$('field-section').setAttribute('d',`M${OX},${y}H${OX+MAP}`);
+ document.querySelectorAll('[data-color-key]').forEach((el,i)=>{el.innerHTML=`<svg class="color-bar" viewBox="0 0 320 6" preserveAspectRatio="none" role="img" aria-label="统一色标，负 ${state.scale} 到正 ${state.scale} nT"><defs><linearGradient id="key-${i}"><stop offset="0" stop-color="${palette[0]}"/><stop offset=".5" stop-color="${palette[32]}"/><stop offset="1" stop-color="${palette[64]}"/></linearGradient></defs><rect width="320" height="6" rx="2" fill="url(#key-${i})"/></svg><div class="color-ticks"><span>−${state.scale} nT</span><span>0</span><span>+${state.scale} nT</span></div>`;});
+}
+function sample(values,x,y){const xx=clamp(x/DX-.5,0,N-1),yy=clamp(y/DX-.5,0,N-1),ix=Math.floor(xx),iy=Math.floor(yy),jx=Math.min(N-1,ix+1),jy=Math.min(N-1,iy+1),tx=xx-ix,ty=yy-iy;return (values[iy*N+ix]*(1-tx)+values[iy*N+jx]*tx)*(1-ty)+(values[jy*N+ix]*(1-tx)+values[jy*N+jx]*tx)*ty;}
+function renderProfile(){
+ const W=430,H=202,left=43,right=16,top=18,bottom=34,pw=W-left-right,ph=H-top-bottom,obs=[],pred=[];let max=1;
+ for(let x=0;x<N;x++){const xx=(x+.5)*DX;obs.push(sample(state.field,xx,state.profileY));pred.push(sample(state.fitted,xx,state.profileY));max=Math.max(max,Math.abs(obs[x]),Math.abs(pred[x]));}
+ const span=Math.max(10,Math.ceil(max/20)*20),py=v=>top+ph/2-v/span*ph/2,px=x=>left+(x+.5)/N*pw;let content='';
+ for(let i=0;i<5;i++){const val=span*(1-i/2),y=py(val);content+=`<path d="M${left},${y}H${W-right}" stroke="#304354" stroke-width=".7"${i===2?'':' stroke-dasharray="2 4"'}/><text x="${left-8}" y="${y+3}" text-anchor="end" style="font-size:9px">${val.toFixed(0)}</text>`;}
+ for(let i=0;i<5;i++){const x=left+pw*i/4;content+=`<text x="${x}" y="${H-17}" text-anchor="middle" style="font-size:9px">${i*6}</text>`;}
+ const path=values=>values.map((v,i)=>(i?'L':'M')+px(i).toFixed(2)+','+py(v).toFixed(2)).join('');
+ content+=`<text x="${left}" y="10" style="font-size:9px">ΔT / nT</text><text x="${W-right}" y="${H-2}" text-anchor="end" style="font-size:9px">X / km</text><path d="${path(obs)}" stroke="#f1b29a" stroke-width="2" fill="none"/><path d="${path(pred)}" stroke="#8be2c5" stroke-width="1.8" stroke-dasharray="6 4" fill="none"${state.inverseCurrent?'':' opacity=".35"'}/>`;
+ $('profile').innerHTML=content;
+}
+function renderStats(){
+ let min=Infinity,max=-Infinity,area=0,sum=0,energy=0;for(let i=0;i<SIZE;i++){min=Math.min(min,state.field[i]);max=Math.max(max,state.field[i]);if(Math.abs(state.model[i])>=10)area+=DX*DX;sum+=(state.field[i]-state.fitted[i])**2;energy+=state.field[i]**2;}
+ $('peak-to-peak').textContent=(max-min).toFixed(1);$('field-max').textContent=(max>0?'+':'')+max.toFixed(1)+' nT';$('field-min').textContent=min.toFixed(1)+' nT';$('model-area').textContent=area.toFixed(1)+' km²';
+ $('rmse').innerHTML=state.inverseCurrent?Math.sqrt(sum/SIZE).toFixed(2)+' <small>nT</small>':'— <small>待更新</small>';
+ $('relative-error').innerHTML=state.inverseCurrent?(energy<1e-15?'0.00':(100*Math.sqrt(sum/energy)).toFixed(2))+' <small>%</small>':'— <small>待更新</small>';
+}
+function renderDepth(){
+ const a=26,b=70,c=100+state.depth*7,svg=$('depth-view');svg.innerHTML=`<defs><pattern id="earth-hatch" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M-2,7L7,-2M5,9L9,5" stroke="#2b3c4b" stroke-width=".6"/></pattern><linearGradient id="source-section"><stop stop-color="#72a9f1"/><stop offset=".45" stop-color="#263e51"/><stop offset="1" stop-color="#f48076"/></linearGradient></defs><rect x="8" y="${b}" width="254" height="68" fill="url(#earth-hatch)"/><path d="M8,${a}H262" stroke="#8be2c5" stroke-width="1" stroke-dasharray="4 4"/><path d="M8,${b}H262" stroke="#97aabc" stroke-width="1"/><rect x="8" y="${c}" width="254" height="9" rx="1" fill="url(#source-section)" opacity=".8"/><path d="M23,${a}V${b}m-3-${b-a}h6m-6 ${b-a}h6M242,${b}V${c}m-3-${c-b}h6m-6 ${c-b}h6" stroke="#a9b8c5" fill="none"/><text x="39" y="49" style="font-size:9px">h = ${state.height.toFixed(2)} km</text><text x="35" y="${c-10}" style="font-size:9px">d = ${state.depth.toFixed(2)} km</text><text x="260" y="19" text-anchor="end" style="fill:#a4ddc9;font-size:9px">观测平面</text><text x="260" y="64" text-anchor="end" style="font-size:9px">地表</text><text x="16" y="${c+23}" style="font-size:9px">等效源层</text>`;
+}
+function mapPoint(event,element){const pt=element.createSVGPoint();pt.x=event.clientX;pt.y=event.clientY;const m=element.getScreenCTM();if(!m)return null;const p=pt.matrixTransform(m.inverse());return {x:(p.x-OX)/MAP*DOMAIN,y:(OY+MAP-p.y)/MAP*DOMAIN,sx:p.x,sy:p.y,inside:p.x>=OX&&p.x<=OX+MAP&&p.y>=OY&&p.y<=OY+MAP};}
+function drawBrush(x,y){
+ const r=state.radius,loX=clamp(Math.floor((x-r)/DX),0,N-1),hiX=clamp(Math.ceil((x+r)/DX),0,N-1),loY=clamp(Math.floor((y-r)/DX),0,N-1),hiY=clamp(Math.ceil((y+r)/DX),0,N-1),value=state.tool==='erase'?0:state.amplitude;
+ for(let iy=loY;iy<=hiY;iy++)for(let ix=loX;ix<=hiX;ix++){const d=Math.hypot((ix+.5)*DX-x,(iy+.5)*DX-y)/r;if(d<=1){const t=clamp((1-d)/.22,0,1),w=t*t*(3-2*t);state.model[iy*N+ix]=state.model[iy*N+ix]*(1-w)+value*w;}}
+}
+function brushSegment(a,b){const length=Math.hypot(b.x-a.x,b.y-a.y),steps=Math.max(1,Math.ceil(length/Math.min(state.radius*.3,DX)));for(let i=1;i<=steps;i++)drawBrush(a.x+(b.x-a.x)*i/steps,a.y+(b.y-a.y)*i/steps);}
+function lassoFill(points){
+ if(points.length<3)return false;let area=0;for(let i=0,j=points.length-1;i<points.length;j=i++)area+=points[j].x*points[i].y-points[i].x*points[j].y;if(Math.abs(area)<DX*DX)return false;
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++){const px=(x+.5)*DX,py=(y+.5)*DX;let inside=false;for(let i=0,j=points.length-1;i<points.length;j=i++){const a=points[i],b=points[j];if((a.y>py)!==(b.y>py)&&px<(b.x-a.x)*(py-a.y)/(b.y-a.y)+a.x)inside=!inside;}if(inside)state.model[y*N+x]=state.amplitude;}
+ return true;
+}
+function showCursor(p){const cursor=$('model-cursor');cursor.setAttribute('cx',p.sx);cursor.setAttribute('cy',p.sy);cursor.setAttribute('r',state.radius/DOMAIN*MAP);cursor.setAttribute('visibility',p.inside&&state.tool!=='lasso'?'visible':'hidden');}
+function updateReadout(prefix,p,values){if(p?.inside){const v=sample(values,p.x,p.y);$(prefix+'-readout').textContent=`X ${p.x.toFixed(2)} · Y ${p.y.toFixed(2)} · ${v>=0?'+':''}${v.toFixed(1)} nT`;}}
+const modelSvg=$('model-map');
+modelSvg.addEventListener('pointerdown',e=>{if(e.button!==0||activeStroke)return;const p=mapPoint(e,modelSvg);if(!p?.inside)return;e.preventDefault();modelSvg.setPointerCapture(e.pointerId);saveHistory();activeStroke={id:e.pointerId,last:p,points:[p],tool:state.tool};if(state.tool!=='lasso'){drawBrush(p.x,p.y);queueCompute();}showCursor(p);});
+modelSvg.addEventListener('pointermove',e=>{const p=mapPoint(e,modelSvg);if(!p)return;showCursor(p);updateReadout('model',p,state.model);if(!activeStroke||activeStroke.id!==e.pointerId)return;e.preventDefault();const q={...p,x:clamp(p.x,0,DOMAIN),y:clamp(p.y,0,DOMAIN)};
+ if(activeStroke.tool==='lasso'){if(Math.hypot(q.sx-activeStroke.last.sx,q.sy-activeStroke.last.sy)>2){activeStroke.points.push(q);activeStroke.last=q;$('model-lasso').setAttribute('d',activeStroke.points.map((p,i)=>(i?'L':'M')+p.sx.toFixed(1)+','+p.sy.toFixed(1)).join('')+'Z');}}
+ else{brushSegment(activeStroke.last,q);activeStroke.last=q;queueCompute();}
+});
+function endStroke(e){if(!activeStroke||e.pointerId!==activeStroke.id)return;
+ if(e.type==='pointercancel'){state.model=history.pop()||state.model;updateHistory();toast('绘制已取消');}
+ else if(activeStroke.tool==='lasso'&&!lassoFill(activeStroke.points)){history.pop();updateHistory();toast('请圈出一个更大的闭合区域');}
+ activeStroke=null;$('model-lasso').setAttribute('d','');if(modelSvg.hasPointerCapture(e.pointerId))modelSvg.releasePointerCapture(e.pointerId);queueCompute();
+}
+modelSvg.addEventListener('pointerup',endStroke);modelSvg.addEventListener('pointercancel',endStroke);modelSvg.addEventListener('lostpointercapture',e=>{if(activeStroke)endStroke({...e,pointerId:e.pointerId,type:'pointercancel'});});modelSvg.addEventListener('pointerleave',()=>$('model-cursor').setAttribute('visibility','hidden'));
+for(const [id,prefix,values] of [['field-map','field',()=>state.field],['inverse-map','inverse',()=>state.inverse]])$(id).addEventListener('pointermove',e=>updateReadout(prefix,mapPoint(e,$(id)),values()));
+function preset(name,push=true){
+ if(push)saveHistory();state.model.fill(0);
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++){const xx=(x+.5)*DX,yy=(y+.5)*DX,gauss=(cx,cy,sx,sy)=>Math.exp(-.5*((xx-cx)**2/sx**2+(yy-cy)**2/sy**2));let v=0;
+  if(name==='dipole')v=650*gauss(8.4,14.7,2.6,3.0)-520*gauss(16.2,9.3,2.2,2.9)+100*gauss(17.6,19,1.6,1.8);
+  if(name==='ring'){const r=Math.hypot(xx-12,yy-12);v=650*Math.exp(-.5*((r-5.5)/.9)**2)-420*gauss(12,12,2.4,2.4);}
+  if(name==='fault'){const u=(xx+yy-24)/Math.SQRT2,t=(xx-yy)/Math.SQRT2;v=620*Math.exp(-.5*((u-1.3)/.8)**2-.5*(t/7)**2)-490*Math.exp(-.5*((u+1.3)/.8)**2-.5*(t/7)**2);}
+  state.model[y*N+x]=Math.abs(v)<.5?0:v;
+ }compute();
+}
+document.querySelectorAll('[data-tool]').forEach(b=>b.addEventListener('click',()=>setTool(b.dataset.tool)));
+$('amplitude').addEventListener('input',e=>{if(e.target.value!==''&&Number.isFinite(e.target.valueAsNumber))setAmplitude(e.target.valueAsNumber);});$('amplitude').addEventListener('change',e=>setAmplitude(e.target.value));$('amplitude-range').addEventListener('input',e=>setAmplitude(e.target.value));
+$('sign-pos').addEventListener('click',()=>setAmplitude(Math.abs(state.amplitude)||600));$('sign-neg').addEventListener('click',()=>setAmplitude(-Math.abs(state.amplitude)||-600));
+const ranges=[['radius','radius',v=>v.toFixed(2)+' km'],['depth','depth',v=>v.toFixed(2)+' km'],['height','height',v=>v.toFixed(2)+' km'],['noise','noise',v=>v.toFixed(0)+' nT'],['inverse-depth','inverseDepth',v=>v.toFixed(2)+' km'],['profile-y','profileY',v=>v.toFixed(2)+' km']];
+for(const [id,key,format] of ranges)$(id).addEventListener('input',e=>{state[key]=Number(e.target.value);$(id+'-value').textContent=format(state[key]);if(key==='profileY'){const y=OY+MAP-state.profileY/DOMAIN*MAP;$('field-section').setAttribute('d',`M${OX},${y}H${OX+MAP}`);renderProfile();}else if(key!=='radius')queueCompute();});
+$('regularization').addEventListener('input',e=>{state.lambda=10**Number(e.target.value);$('regularization-value').textContent=state.lambda<.0001?state.lambda.toExponential(1):state.lambda.toFixed(4);queueCompute();});
+$('contours').addEventListener('change',e=>{state.contours=e.target.checked;renderMaps();});$('grid').addEventListener('change',e=>{state.grid=e.target.checked;renderMaps();});
+$('auto-inverse').addEventListener('change',e=>{state.auto=e.target.checked;if(state.auto)compute();});$('invert-button').addEventListener('click',()=>{compute(true);toast('反演已更新 · 仅使用观测场和给定反演参数');});
+$('undo').addEventListener('click',undo);$('redo').addEventListener('click',redo);$('clear').addEventListener('click',()=>{saveHistory();state.model.fill(0);compute();toast('模型已清空，可开始绘制');});$('load-preset').addEventListener('click',()=>{preset($('preset').value);toast('示例已载入');});
+document.addEventListener('keydown',e=>{if(e.target.matches('input,select,textarea')||$('help-dialog').open)return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();}else if(!e.ctrlKey&&!e.metaKey){const tool={b:'brush',l:'lasso',e:'erase'}[e.key.toLowerCase()];if(tool)setTool(tool);}});
+$('help-button').addEventListener('click',()=>$('help-dialog').showModal());$('close-help').addEventListener('click',()=>$('help-dialog').close());$('help-dialog').addEventListener('click',e=>{if(e.target===$('help-dialog')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}});
+// Simplified hand-authored continent outlines; [longitude, latitude] in degrees.
+const continents=[
+ [[-168,71],[-153,70],[-144,61],[-131,55],[-125,49],[-124,41],[-117,32],[-110,29],[-105,23],[-98,16],[-89,16],[-85,10],[-78,9],[-77,15],[-85,21],[-81,25],[-80,32],[-74,40],[-65,45],[-60,52],[-66,59],[-78,62],[-83,70],[-96,77],[-113,75],[-130,70],[-145,72]],
+ [[-81,12],[-73,11],[-62,9],[-51,3],[-35,-6],[-39,-15],[-45,-23],[-49,-29],[-58,-39],[-65,-55],[-72,-51],[-75,-37],[-72,-27],[-77,-12],[-81,-4]],
+ [[-52,59],[-42,61],[-25,71],[-20,79],[-40,84],[-59,81],[-68,73],[-60,65]],
+ [[-17,36],[-5,36],[10,37],[24,32],[33,31],[43,12],[51,12],[43,3],[41,-12],[35,-23],[29,-34],[18,-35],[12,-22],[8,-5],[-1,5],[-14,11],[-17,22]],
+ [[-10,36],[-9,43],[-1,45],[2,51],[7,54],[10,58],[8,65],[20,71],[30,70],[30,60],[41,56],[51,67],[70,73],[92,76],[119,73],[143,70],[170,66],[179,54],[160,59],[157,51],[145,47],[141,38],[130,42],[123,34],[121,24],[109,20],[108,12],[104,1],[99,7],[98,18],[90,22],[80,8],[73,16],[67,25],[57,25],[52,17],[44,12],[36,29],[28,40],[21,41],[15,37],[8,44],[2,41]],
+ [[112,-22],[115,-34],[128,-35],[137,-35],[146,-39],[154,-28],[149,-18],[142,-11],[137,-16],[130,-12],[120,-17]],
+ [[130,-3],[140,-3],[150,-6],[151,-10],[141,-9],[133,-5]],
+ [[47,-13],[50,-17],[48,-25],[44,-25],[43,-18]],
+ [[-8,50],[-5,59],[0,58],[2,52]],
+ [[130,31],[134,35],[141,41],[145,44],[141,38],[136,34]],
+ [[-180,-76],[-150,-74],[-120,-74],[-90,-72],[-65,-65],[-53,-72],[-30,-76],[0,-72],[30,-70],[60,-69],[90,-67],[120,-69],[150,-74],[180,-76]]
+];
+const DEG=Math.PI/180;
+const wrapLon=v=>((v+180)%360+360)%360-180;
+function densify(poly){const out=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],delta=wrapLon(b[0]-a[0]),steps=Math.max(1,Math.ceil(Math.hypot(delta,b[1]-a[1])/3));for(let j=0;j<steps;j++)out.push([a[0]+delta*j/steps,a[1]+(b[1]-a[1])*j/steps]);}return out;}
+const coastlines=continents.map(densify);
+const globeGrid=[];for(let lat=-60;lat<=60;lat+=30){const p=[];for(let lon=-180;lon<=180;lon+=3)p.push([lon,lat]);globeGrid.push(p);}for(let lon=-180;lon<180;lon+=30){const p=[];for(let lat=-90;lat<=90;lat+=3)p.push([lon,lat]);globeGrid.push(p);}
+function projection(lon,lat){const a=lat*DEG,b=wrapLon(lon-state.lon)*DEG,c=state.lat*DEG,cosA=Math.cos(a),sinA=Math.sin(a),cosB=Math.cos(b);return {x:cosA*Math.sin(b),y:sinA*Math.cos(c)-cosA*cosB*Math.sin(c),z:sinA*Math.sin(c)+cosA*cosB*Math.cos(c)};}
+const screen=p=>[(180+133*p.x).toFixed(2),(167-133*p.y).toFixed(2)];
+function horizon(a,b){const t=a.z/(a.z-b.z),x=a.x+(b.x-a.x)*t,y=a.y+(b.y-a.y)*t,length=Math.hypot(x,y);return {x:x/length,y:y/length,z:0};}
+function visiblePath(points){let d='',last=null,pen=false;for(const [lon,lat] of points){const p=projection(lon,lat);if(!last){if(p.z>=0){const xy=screen(p);d+='M'+xy;pen=true;}}else if(last.z>=0&&p.z>=0){const xy=screen(p);d+=(pen?'L':'M')+xy;pen=true;}else if(last.z>=0&&p.z<0){d+='L'+screen(horizon(last,p));pen=false;}else if(last.z<0&&p.z>=0){d+='M'+screen(horizon(last,p))+'L'+screen(p);pen=true;}last=p;}return d;}
+function landPath(poly){const v=poly.map(p=>projection(...p)),out=[];for(let i=0;i<v.length;i++){const a=v[i],b=v[(i+1)%v.length];if(a.z>=0)out.push(a);if((a.z>=0)!==(b.z>=0))out.push(horizon(a,b));}return out.length>2?'M'+out.map(screen).join('L')+'Z':'';}
+function globalValue(lon,lat){const a=lon*DEG,b=lat*DEG,c=Math.cos(b);let v=220*Math.sin(3*a+.9*Math.sin(2*b))*c*c+140*Math.cos(2*a-2*b)*c+80*Math.sin(4*b)*Math.cos(a);
+ if(state.globeLink){const xx=wrapLon(lon-105)*111.32*Math.cos(30*DEG)/160+12,yy=(lat-30)*111.32/160+12;if(xx>=0&&xx<=24&&yy>=0&&yy<=24){const edge=Math.min(xx,yy,24-xx,24-yy),fade=clamp(edge/2,0,1);v+=sample(state.field,xx,yy)*fade;}}
+ return v;
+}
+function buildGlobeContours(){
+ const nx=97,ny=49,values=new Float64Array(nx*ny),segments=[];for(let y=0;y<ny;y++)for(let x=0;x<nx;x++)values[y*nx+x]=globalValue(-180+x*360/(nx-1),-90+y*180/(ny-1));
+ contours(values,nx,ny,[-300,-200,-100,-40,40,100,200,300],(a,b,l)=>segments.push({a,b,l}));
+ // Join cell segments so dash patterns remain continuous along a contour.
+ const nodes=new Map(),key=(p,l)=>l+':'+p[0].toFixed(5)+','+p[1].toFixed(5);
+ segments.forEach((s,i)=>{for(const p of [s.a,s.b]){const k=key(p,s.l);if(!nodes.has(k))nodes.set(k,[]);nodes.get(k).push(i);}});
+ const used=new Uint8Array(segments.length),lines=[];
+ for(let i=0;i<segments.length;i++){if(used[i])continue;used[i]=1;const first=segments[i],line=[first.a,first.b];
+  for(const back of [false,true]){let endpoint=back?line[0]:line[line.length-1];while(true){const candidates=nodes.get(key(endpoint,first.l))||[],next=candidates.find(j=>!used[j]);if(next===undefined)break;used[next]=1;const s=segments[next],p=key(s.a,s.l)===key(endpoint,first.l)?s.b:s.a;if(back)line.unshift(p);else line.push(p);endpoint=p;}}
+  lines.push({positive:first.l>0,points:line.map(p=>[-180+p[0]*360/(nx-1),-90+p[1]*180/(ny-1)])});
+ }contourSegments=lines;globeDirty=false;
+}
+function drawGlobe(){
+ $('earth-land').innerHTML=coastlines.map(poly=>`<path d="${landPath(poly)}"/>`).join('');$('earth-grid').setAttribute('d',globeGrid.map(visiblePath).join(''));let pos='',neg='';for(const c of contourSegments){const p=visiblePath(c.points);if(c.positive)pos+=p;else neg+=p;}$('earth-positive').setAttribute('d',pos);$('earth-negative').setAttribute('d',neg);
+ const site=projection(105,30);if(site.z>0&&state.globeLink){const xy=screen(site);$('earth-site').innerHTML=`<circle cx="${xy[0]}" cy="${xy[1]}" r="7" fill="#8be2c522" stroke="#9ce4c9" stroke-width=".9"/><circle cx="${xy[0]}" cy="${xy[1]}" r="2.2" fill="#a9f2d7"/>`;}else $('earth-site').innerHTML='';
+ const lon=wrapLon(state.lon),lat=state.lat;$('globe-coordinate').textContent=`${Math.abs(lon).toFixed(0)}°${lon>=0?'E':'W'} / ${Math.abs(lat).toFixed(0)}°${lat>=0?'N':'S'}`;
+}
+function rotationUI(){$('rotation-label').textContent=state.rotating?'暂停旋转':'继续旋转';$('rotation-icon').innerHTML=`<use href="#i-${state.rotating?'pause':'play'}"/>`;$('rotation-button').setAttribute('aria-pressed',String(state.rotating));}
+$('rotation-button').addEventListener('click',()=>{state.rotating=!state.rotating;rotationUI();});$('globe-reset').addEventListener('click',()=>{state.lon=105;state.lat=20;drawGlobe();});$('globe-link').addEventListener('change',e=>{state.globeLink=e.target.checked;globeDirty=true;buildGlobeContours();drawGlobe();});
+let globeDrag=null;
+$('globe').addEventListener('pointerdown',e=>{if(e.button!==0||globeDrag)return;e.preventDefault();globeDrag={id:e.pointerId,x:e.clientX,y:e.clientY,lon:state.lon,lat:state.lat,resume:state.rotating};state.rotating=false;rotationUI();$('globe').setPointerCapture(e.pointerId);});
+$('globe').addEventListener('pointermove',e=>{if(!globeDrag||e.pointerId!==globeDrag.id)return;state.lon=wrapLon(globeDrag.lon-(e.clientX-globeDrag.x)*.5);state.lat=clamp(globeDrag.lat+(e.clientY-globeDrag.y)*.35,-80,80);drawGlobe();});
+function endGlobe(e){if(!globeDrag||e.pointerId!==globeDrag.id)return;state.rotating=globeDrag.resume;globeDrag=null;rotationUI();if($('globe').hasPointerCapture(e.pointerId))$('globe').releasePointerCapture(e.pointerId);}
+$('globe').addEventListener('pointerup',endGlobe);$('globe').addEventListener('pointercancel',endGlobe);$('globe').addEventListener('lostpointercapture',endGlobe);
+let lastDraw=0,lastBuild=0;function animate(t){if(t-lastDraw>=66&&!document.hidden){const dt=lastDraw?Math.min(t-lastDraw,200):0;lastDraw=t;if(globeDirty&&t-lastBuild>220){buildGlobeContours();lastBuild=t;}if(state.rotating){state.lon=wrapLon(state.lon+dt*.006);drawGlobe();}else if(globeDirty===false&&lastBuild===t)drawGlobe();}requestAnimationFrame(animate);}
+function settingsSnapshot(){const out={};for(const key of ['amplitude','radius','depth','height','noise','lambda','inverseDepth','profileY','tool','auto','contours','grid','globeLink','rotating','lon','lat'])out[key]=state[key];return out;}
+function restoreSession(){
+ let data;try{data=JSON.parse($('session-data').textContent);}catch{return false;}
+ if(!data||data.format!=='magnetic-exploration-v1'||!Array.isArray(data.model)||data.model.length!==SIZE||!data.model.every(v=>typeof v==='number'&&Number.isFinite(v)&&Math.abs(v)<=10000))return false;
+ state.model=Float64Array.from(data.model);const s=data.settings||{},limits={amplitude:[-1000,1000],radius:[.3,4],depth:[.2,4],height:[0,2],noise:[0,20],lambda:[1e-5,.1],inverseDepth:[.2,4],profileY:[0,24],lon:[-180,180],lat:[-80,80]};
+ for(const [key,[min,max]] of Object.entries(limits))if(Number.isFinite(s[key]))state[key]=clamp(s[key],min,max);
+ for(const key of ['auto','contours','grid','globeLink','rotating'])if(typeof s[key]==='boolean')state[key]=s[key];if(['brush','lasso','erase'].includes(s.tool))state.tool=s.tool;
+ // Reconstruct the saved manual result at startup using the saved observation and parameters.
+ compute(true);return true;
+}
+function syncControls(){setAmplitude(state.amplitude);for(const [id,key,format] of ranges){$(id).value=state[key];$(id+'-value').textContent=format(state[key]);}$('regularization').value=Math.log10(state.lambda);$('regularization-value').textContent=state.lambda<.0001?state.lambda.toExponential(1):state.lambda.toFixed(4);for(const [id,key] of [['contours','contours'],['grid','grid'],['auto-inverse','auto'],['globe-link','globeLink']])$(id).checked=state[key];setTool(state.tool);rotationUI();updateHistory();}
+$('save-button').addEventListener('click',()=>{
+ if(activeStroke){toast('请先完成当前绘制');return;}
+ const data={format:'magnetic-exploration-v1',model:Array.from(state.model,v=>Number(v.toFixed(6))),settings:settingsSnapshot()},clone=document.documentElement.cloneNode(true);clone.querySelector('#session-data').textContent=JSON.stringify(data);
+ for(const id of ['model-map','field-map','inverse-map','profile','depth-view','earth-land','earth-grid','earth-positive','earth-negative','earth-site']){const el=clone.querySelector('#'+id);if(el.tagName.toLowerCase()==='path')el.setAttribute('d','');else el.innerHTML='';}clone.querySelectorAll('[data-color-key]').forEach(e=>e.innerHTML='');clone.querySelector('#help-dialog').removeAttribute('open');clone.querySelector('#toast').classList.remove('show');
+ const blob=new Blob(['<!DOCTYPE html>\n'+clone.outerHTML],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='磁场实验-'+new Date().toLocaleDateString('sv-SE')+'.html';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);toast('已保存为独立 HTML，打开即可继续实验');
+});
+if(!restoreSession())preset('dipole',false);syncControls();buildGlobeContours();drawGlobe();requestAnimationFrame(animate);
+// A read-only numerical snapshot is useful for reproducibility and external inspection.
+Object.defineProperty(window,'magneticLab',{value:Object.freeze({snapshot:()=>({grid:N,domainKm:DOMAIN,revision,settings:settingsSnapshot(),source:Array.from(state.model),observed:Array.from(state.field),recovered:Array.from(state.inverse),predicted:Array.from(state.fitted),inverseCurrent:state.inverseCurrent})}),writable:false});
+})();
+</script>
+</body>
+</html>
